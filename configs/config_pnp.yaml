@@ -4,16 +4,16 @@ device: 'cuda'
 output_path: 'tokenflow-results'
 
 # data
-data_path: 'data/watermarked_tower_video'
+data_path: 'data/watermarked_apple_video'
 latents_path: 'latents' # should be the same as 'save_dir' arg used in preprocess
 n_inversion_steps: 500 # for retrieving the latents of the inversion
-n_frames: 25
+n_frames: 50
 
 # diffusion
 sd_version: '2.1'
 guidance_scale: 7.5
 n_timesteps: 50
-prompt: "a white illuminated clock tower in the night"
+prompt: "a red apple on a granite platform"
 negative_prompt: "ugly, blurry, low res, unrealistic, unaesthetic"
 batch_size: 8
 
