@@ -4,16 +4,16 @@ device: 'cuda'
 output_path: 'tokenflow-results'
 
 # data
-data_path: 'data/apple'
+data_path: 'data/watermarked_bear_video_30fps'
 latents_path: 'latents' # should be the same as 'save_dir' arg used in preprocess
 n_inversion_steps: 500 # for retrieving the latents of the inversion
-n_frames: 24
+n_frames: 60
 
 # diffusion
 sd_version: '2.1'
 guidance_scale: 7.5
 n_timesteps: 50
-prompt: "an apple on a granite platform"
+prompt: "a brown bear walking in front of a stone wall"
 negative_prompt: "ugly, blurry, low res, unrealistic, unaesthetic"
 batch_size: 8
 
