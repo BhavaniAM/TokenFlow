@@ -7,7 +7,7 @@ output_path: 'tokenflow-results'
 data_path: 'data/apple'
 latents_path: 'latents' # should be the same as 'save_dir' arg used in preprocess
 n_inversion_steps: 500 # for retrieving the latents of the inversion
-n_frames: 50
+n_frames: 24
 
 # diffusion
 sd_version: '2.1'
