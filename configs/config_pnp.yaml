@@ -4,16 +4,16 @@ device: 'cuda'
 output_path: 'tokenflow-results'
 
 # data
-data_path: 'data/watermarked_spw2_video'
+data_path: 'data/watermarked_roc_video'
 latents_path: 'latents' # should be the same as 'save_dir' arg used in preprocess
 n_inversion_steps: 500 # for retrieving the latents of the inversion
-n_frames: 62
+n_frames: 52
 
 # diffusion
 sd_version: '2.1'
 guidance_scale: 7.5
 n_timesteps: 50
-prompt: "a man slowly walking towards the camera"
+prompt: "people walking towards a camera"
 negative_prompt: "ugly, blurry, low res, unrealistic, unaesthetic"
 batch_size: 8
 
