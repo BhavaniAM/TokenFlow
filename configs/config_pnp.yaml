@@ -4,7 +4,7 @@ device: 'cuda'
 output_path: 'tokenflow-results'
 
 # data
-data_path: 'data/watermarked_roc_video'
+data_path: 'data/watermarked_roc_3_5_video'
 latents_path: 'latents' # should be the same as 'save_dir' arg used in preprocess
 n_inversion_steps: 500 # for retrieving the latents of the inversion
 n_frames: 52
