@@ -251,15 +251,13 @@ class TokenFlow(nn.Module):
         if not cap.isOpened():
             print("Error: Could not open video.")
         else:
-            # frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             fps_found = cap.get(cv2.CAP_PROP_FPS)
-            # print(f"Number of frames: {frame_count}")
         cap.release()
         
         save_video(decoded, f'{self.config["output_path"]}/vae_recon_10.mp4', fps=10)
         save_video(decoded, f'{self.config["output_path"]}/vae_recon_20.mp4', fps=20)
         save_video(decoded, f'{self.config["output_path"]}/vae_recon_30.mp4', fps=30)
-        save_video(decoded, f'{self.config["output_path"]}/vae_recon_fps.mp4', fps=fps_found)
+        save_video(decoded, f'{self.config["output_path"]}/vae_recon_{fps_found}.mp4', fps=fps_found)
 
     def edit_video(self):
         os.makedirs(f'{self.config["output_path"]}/img_ode', exist_ok=True)
@@ -276,15 +274,13 @@ class TokenFlow(nn.Module):
         if not cap.isOpened():
             print("Error: Could not open video.")
         else:
-            # frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             fps_found = cap.get(cv2.CAP_PROP_FPS)
-            # print(f"Number of frames: {frame_count}")
         cap.release()
 
         save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_10.mp4')
         save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_20.mp4', fps=20)
         save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_30.mp4', fps=30)
-        save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_fps.mp4', fps=fps_found)
+        save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_{fps_found}.mp4', fps=fps_found)
         print('Done!')
 
     def sample_loop(self, x, indices):
