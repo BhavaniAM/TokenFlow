@@ -221,6 +221,9 @@ class TokenFlow(nn.Module):
     def denoise_step(self, x, t, indices):
         # register the time step and features in pnp injection modules
         source_latents = load_source_latents_t(t, self.latents_path)[indices]
+        if x.shape != source_latents.shape:
+            x = F.interpolate(x, size = source_latents.shape[2:])
+
         latent_model_input = torch.cat([source_latents] + ([x] * 2))
         if self.sd_version == 'depth':
             latent_model_input = torch.cat([latent_model_input, torch.cat([self.depth_maps[indices]] * 3)], dim=1)
