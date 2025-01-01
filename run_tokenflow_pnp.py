@@ -125,21 +125,46 @@ class TokenFlow(nn.Module):
         return os.path.join(latents_path, 'latents')
 
     @torch.no_grad()
+    # def get_text_embeds(self, prompt, negative_prompt, batch_size=1):
+    #     # Tokenize text and get embeddings
+    #     text_input = self.tokenizer(prompt, padding='max_length', max_length=self.tokenizer.model_max_length,
+    #                                 truncation=True, return_tensors='pt')
+    #     text_embeddings = self.text_encoder(text_input.input_ids.to(self.device))[0]
+
+    #     print("np = ", negative_prompt)
+    #     if(negative_prompt == "" or negative_prompt == " "):
+    #       return text_embeddings
+
+    #     # Do the same for unconditional embeddings
+    #     uncond_input = self.tokenizer(negative_prompt, padding='max_length', max_length=self.tokenizer.model_max_length,
+    #                                   return_tensors='pt')
+
+    #     uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.device))[0]
+
+    #     # Cat for final embeddings
+    #     text_embeddings = torch.cat([uncond_embeddings] * batch_size + [text_embeddings] * batch_size)
+    #     return text_embeddings
     def get_text_embeds(self, prompt, negative_prompt, batch_size=1):
-        # Tokenize text and get embeddings
-        text_input = self.tokenizer(prompt, padding='max_length', max_length=self.tokenizer.model_max_length,
+      # Tokenize the positive prompt
+      text_input = self.tokenizer(prompt, padding='max_length', max_length=self.tokenizer.model_max_length,
+                                  truncation=True, return_tensors='pt')
+      text_embeddings = self.text_encoder(text_input.input_ids.to(self.device))[0]
+
+      print("np = ", negative_prompt)
+      if negative_prompt == "" or negative_prompt == " ":
+          # If no negative prompt, return the positive prompt embeddings
+          return text_embeddings
+
+      # Tokenize the negative prompt with the same max_length as the positive prompt
+      uncond_input = self.tokenizer(negative_prompt, padding='max_length', max_length=self.tokenizer.model_max_length,
                                     truncation=True, return_tensors='pt')
-        text_embeddings = self.text_encoder(text_input.input_ids.to(self.device))[0]
 
-        # Do the same for unconditional embeddings
-        uncond_input = self.tokenizer(negative_prompt, padding='max_length', max_length=self.tokenizer.model_max_length,
-                                      return_tensors='pt')
+      uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.device))[0]
 
-        uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.device))[0]
+      # Concatenate for final embeddings
+      text_embeddings = torch.cat([uncond_embeddings] * batch_size + [text_embeddings] * batch_size)
+      return text_embeddings
 
-        # Cat for final embeddings
-        text_embeddings = torch.cat([uncond_embeddings] * batch_size + [text_embeddings] * batch_size)
-        return text_embeddings
 
     @torch.no_grad()
     def encode_imgs(self, imgs, batch_size=VAE_BATCH_SIZE, deterministic=False):
@@ -244,20 +269,9 @@ class TokenFlow(nn.Module):
         decoded = self.decode_latents(self.latents)
         for i in range(len(decoded)):
             T.ToPILImage()(decoded[i]).save(f'{self.config["output_path"]}/vae_recon/%05d.png' % i)
-
-        video_path = self.config["data_path"] + '.mp4'
-        cap = cv2.VideoCapture(video_path)
-        
-        if not cap.isOpened():
-            print("Error: Could not open video.")
-        else:
-            fps_found = cap.get(cv2.CAP_PROP_FPS)
-        cap.release()
-        
         save_video(decoded, f'{self.config["output_path"]}/vae_recon_10.mp4', fps=10)
         save_video(decoded, f'{self.config["output_path"]}/vae_recon_20.mp4', fps=20)
         save_video(decoded, f'{self.config["output_path"]}/vae_recon_30.mp4', fps=30)
-        save_video(decoded, f'{self.config["output_path"]}/vae_recon_{fps_found}.mp4', fps=fps_found)
 
     def edit_video(self):
         os.makedirs(f'{self.config["output_path"]}/img_ode', exist_ok=True)
@@ -267,20 +281,9 @@ class TokenFlow(nn.Module):
         self.init_method(conv_injection_t=pnp_f_t, qk_injection_t=pnp_attn_t)
         noisy_latents = self.scheduler.add_noise(self.latents, self.eps, self.scheduler.timesteps[0])
         edited_frames = self.sample_loop(noisy_latents, torch.arange(self.config["n_frames"]))
-
-        video_path = self.config["data_path"] + '.mp4'
-        cap = cv2.VideoCapture(video_path)
-        
-        if not cap.isOpened():
-            print("Error: Could not open video.")
-        else:
-            fps_found = cap.get(cv2.CAP_PROP_FPS)
-        cap.release()
-
         save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_10.mp4')
         save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_20.mp4', fps=20)
         save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_30.mp4', fps=30)
-        save_video(edited_frames, f'{self.config["output_path"]}/tokenflow_PnP_fps_{fps_found}.mp4', fps=fps_found)
         print('Done!')
 
     def sample_loop(self, x, indices):
